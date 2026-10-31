@@ -1,0 +1,26 @@
+### Set up needed environment for backend
+## 1. Initializing node.js project
+``` 
+npm init - y
+```
+## 2. Installing express
+```
+npm install express cors dotenv
+```
+## 3. Installing TypeScripts
+```
+npm install -D typescript ts-node-dev @types/node @types/express @types/cors
+```
+## 4. Initialize TypeScripts
+```
+npx tsc --init
+```
+## 5. Install Prisma + SQL 
+```
+npm install prisma @prisma/client
+npx prisma init
+```
+### Set up needed environment for frontend
+``` 
+npm create vite@latest -- --template react
+```
