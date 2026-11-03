@@ -1,0 +1,254 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum SalePaymentKind {
+  DEPOSIT
+  BALANCE
+}
+
+enum LeadActivityKind {
+  INTEREST
+  CALL
+  MESSAGE
+  VISIT
+  FOLLOW_UP
+  CONFIRMED
+}
+
+enum Role {
+  ADMIN
+  EMPLOYEE
+}
+
+enum CarStatus {
+  INSPECTION
+  MAINTENANCE
+  READY_FOR_REVIEW
+  FOR_SALE
+  CUSTOMER_CLOSED
+  DEPOSITED
+  SOLD
+  CANCELLED
+}
+
+model User {
+  id           String @id @default(cuid())
+  email        String @unique
+  googleSub    String? @unique
+  name         String
+  avatarUrl    String?
+  role         Role @default(EMPLOYEE)
+  active       Boolean @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  assignments  CarInspectionAssignment[] @relation("AssignedEmployee")
+  assignedCars CarInspectionAssignment[] @relation("AssignmentAdmin")
+  comments     InspectionComment[]
+  photos       InspectionPhoto[]
+  maintenance  MaintenanceRecord[]
+  invoices     MaintenanceInvoice[]
+  audits       AuditLog[]
+  leadActivities LeadActivity[]
+  salePayments SalePayment[]
+  saleDeals    CarDeal[] @relation("SaleDealCreator")
+}
+
+model Car {
+  id            String @id @default(cuid())
+  plate         String @unique
+  brand         String
+  model         String
+  year          Int
+  odo           Int @default(0)
+  color         String?
+  purchasePrice Decimal? @db.Decimal(15, 2)
+  seller        String?
+  phone         String?
+  salePrice     Decimal? @db.Decimal(15, 2)
+  deposit       Decimal? @db.Decimal(15, 2)
+  status        CarStatus @default(INSPECTION)
+  inspectedAt   DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  assignments   CarInspectionAssignment[]
+  blocks        InspectionBlock[]
+  maintenance   MaintenanceRecord[]
+  leads         SalesLead[]
+  warranty      WarrantyRecord[]
+  audits        AuditLog[]
+  deal          CarDeal?
+  leadActivities LeadActivity[]
+}
+
+model CarInspectionAssignment {
+  carId        String
+  employeeId   String
+  assignedById String
+  assignedAt   DateTime @default(now())
+  car          Car @relation(fields: [carId], references: [id], onDelete: Cascade)
+  employee     User @relation("AssignedEmployee", fields: [employeeId], references: [id])
+  assignedBy   User @relation("AssignmentAdmin", fields: [assignedById], references: [id])
+  @@id([carId, employeeId])
+  @@index([employeeId])
+}
+
+model InspectionBlock {
+  id        String @id @default(cuid())
+  carId     String
+  section   String
+  condition String @default("Chưa kiểm tra")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  car       Car @relation(fields: [carId], references: [id], onDelete: Cascade)
+  photos    InspectionPhoto[]
+  comments  InspectionComment[]
+  @@unique([carId, section])
+}
+
+model InspectionPhoto {
+  id           String @id @default(cuid())
+  blockId      String
+  publicId     String @unique
+  format       String
+  originalName String?
+  uploadedById String
+  createdAt    DateTime @default(now())
+  block        InspectionBlock @relation(fields: [blockId], references: [id], onDelete: Cascade)
+  uploadedBy   User @relation(fields: [uploadedById], references: [id])
+}
+
+model InspectionComment {
+  id        String @id @default(cuid())
+  blockId   String
+  authorId  String
+  content   String @db.Text
+  createdAt DateTime @default(now())
+  block     InspectionBlock @relation(fields: [blockId], references: [id], onDelete: Cascade)
+  author    User @relation(fields: [authorId], references: [id])
+}
+
+model MaintenanceRecord {
+  id        String @id @default(cuid())
+  carId     String
+  employeeId String
+  task      String
+  amount    Decimal @db.Decimal(15,2)
+  note      String?
+  createdAt DateTime @default(now())
+  car       Car @relation(fields: [carId], references: [id], onDelete: Cascade)
+  employee  User @relation(fields: [employeeId], references: [id])
+  invoices  MaintenanceInvoice[]
+  @@index([carId, createdAt])
+}
+
+model MaintenanceInvoice {
+  id                  String @id @default(cuid())
+  maintenanceRecordId String
+  publicId            String @unique
+  format              String
+  resourceType        String
+  originalName        String?
+  uploadedById        String
+  createdAt           DateTime @default(now())
+  record              MaintenanceRecord @relation(fields: [maintenanceRecordId], references: [id], onDelete: Cascade)
+  uploadedBy          User @relation(fields: [uploadedById], references: [id])
+}
+
+model SalesLead {
+  id String @id @default(cuid())
+  carId String
+  name String
+  tiktok String?
+  phone String
+  address String?
+  note String?
+  createdAt DateTime @default(now())
+  car Car @relation(fields: [carId], references: [id], onDelete: Cascade)
+  activities LeadActivity[]
+  buyerDeal CarDeal?
+  @@index([carId, createdAt])
+}
+
+model LeadActivity {
+  id String @id @default(cuid())
+  carId String
+  leadId String
+  createdById String
+  kind LeadActivityKind
+  content String? @db.Text
+  createdAt DateTime @default(now())
+  car Car @relation(fields: [carId], references: [id], onDelete: Cascade)
+  lead SalesLead @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  createdBy User @relation(fields: [createdById], references: [id])
+  @@index([carId, createdAt])
+  @@index([leadId, createdAt])
+}
+
+model CarDeal {
+  id String @id @default(cuid())
+  carId String @unique
+  buyerLeadId String @unique
+  agreedPrice Decimal @db.Decimal(15, 2)
+  createdById String
+  depositedAt DateTime @default(now())
+  soldAt DateTime?
+  createdAt DateTime @default(now())
+  car Car @relation(fields: [carId], references: [id], onDelete: Restrict)
+  buyer SalesLead @relation(fields: [buyerLeadId], references: [id], onDelete: Restrict)
+  createdBy User @relation("SaleDealCreator", fields: [createdById], references: [id])
+  payments SalePayment[]
+  @@index([soldAt])
+}
+
+model SalePayment {
+  id String @id @default(cuid())
+  dealId String
+  kind SalePaymentKind
+  amount Decimal @db.Decimal(15, 2)
+  note String? @db.Text
+  receivedAt DateTime @default(now())
+  createdById String
+  deal CarDeal @relation(fields: [dealId], references: [id], onDelete: Restrict)
+  createdBy User @relation(fields: [createdById], references: [id])
+  @@index([receivedAt])
+  @@index([dealId, receivedAt])
+}
+
+model Expense {
+  id String @id @default(cuid())
+  category String
+  amount Decimal @db.Decimal(15,2)
+  description String?
+  date DateTime
+  createdBy String
+  createdAt DateTime @default(now())
+}
+
+model WarrantyRecord {
+  id String @id @default(cuid())
+  carId String
+  description String
+  amount Decimal @db.Decimal(15,2)
+  date DateTime
+  createdBy String
+  createdAt DateTime @default(now())
+  car Car @relation(fields: [carId], references: [id], onDelete: Cascade)
+}
+
+model AuditLog {
+  id String @id @default(cuid())
+  carId String?
+  userId String
+  action String
+  detail Json?
+  createdAt DateTime @default(now())
+  car Car? @relation(fields: [carId], references: [id], onDelete: SetNull)
+  user User @relation(fields: [userId], references: [id])
+  @@index([carId, createdAt])
+}
