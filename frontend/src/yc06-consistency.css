@@ -1,0 +1,177 @@
+/* Garage OS YC06 – consistent layout + type scale; intentionally last in cascade. */
+:root {
+  --ui-font: "DM Sans", Arial, sans-serif;
+  --ui-text: #263c4e;
+  --ui-muted: #687e90;
+  --ui-border: #e2e9ef;
+  --ui-radius: 16px;
+  --ui-space: 18px;
+  --ui-control-height: 42px;
+  --ui-body-size: 14px;
+  --ui-small-size: 12px;
+  font-family: var(--ui-font);
+  font-size: 14px;
+  line-height: 1.5;
+}
+html { -webkit-text-size-adjust:100%; text-size-adjust:100%; }
+body, #root, .app-shell, .yc05-login, .sidebar, .topbar, .page-content,
+button, input, textarea, select, option, table, th, td, label, small,
+.modal, .panel, .stat-card, .finance-stat, .sales-card {
+  font-family:var(--ui-font) !important;
+}
+.page-content, .modal, .login-form { color: var(--ui-text); font-size:var(--ui-body-size); }
+.page-content p, .page-content li, .page-content td,
+.page-content .field, .page-content .cost-breakdown,
+.page-content .quick-row, .page-content .task-text {
+  font-size:var(--ui-body-size);
+  line-height:1.55;
+}
+.page-content small, .page-content .panel-head p, .page-content .stat-card small,
+.page-content .finance-stat small, .page-content .finance-stat span,
+.page-content .task-text small, .page-content td small,
+.page-content .chart-footer, .page-content .dashboard-disclaimer,
+.page-content .sales-lead small, .page-content .report-range,
+.page-content .deal-meta span { font-size:var(--ui-small-size); line-height:1.55; }
+.page-content th, .page-content .status, .page-content .category-pill,
+.page-content .field label, .page-content .stat-top,
+.page-content .text-btn, .page-content .dashboard-kicker,
+.page-content .donut-legend > div, .sidebar .nav-heading,
+.sidebar-workspace-card p, .sidebar-workspace-kicker {
+  font-size:12px;
+  line-height:1.45;
+}
+.page-content h1,.page-content h2,.page-content h3,.page-content h4,
+.page-toolbar h2,.welcome-row h2,.dashboard-hero h2,
+.panel-head h3,.sales-section-title h4,.sales-payment-head h4,
+.finance-explanation h3,.modal-head h3,
+.topbar h1,.yc05-login h1,.yc05-login h2 {
+  font-family:var(--ui-font) !important;
+  letter-spacing:-.025em;
+}
+.page-toolbar h2,.welcome-row h2,.dashboard-hero h2 { font-size:24px !important; line-height:1.3; }
+.topbar h1 { font-size:20px; line-height:1.3; }
+.panel-head h3,.sales-section-title h4,.sales-payment-head h4,
+.finance-explanation h3 {font-size:16px !important;line-height:1.35;}
+.modal-head h3 { font-size:18px; }
+.yc05-login .login-form h2 { font-size:28px; }
+.sidebar .brand b,.yc05-login .login-brand b { font-family:var(--ui-font) !important; font-size:15px; }
+.sidebar .nav-item { font-size:13px; min-height:44px; }
+.topbar-date, .topbar .user-chip b, .topbar .user-chip small, .breadcrumb { font-size:12px; }
+.page-content .btn,.modal .btn,.page-content button:not(.text-btn):not(.nav-item),
+.modal button:not(.close-btn), .yc05-login .google-button {
+  font-family:var(--ui-font) !important;
+  font-size:13px;
+  line-height:1.4;
+}
+.page-content .btn, .modal .btn { min-height:var(--ui-control-height); padding:10px 16px; }
+.page-content .btn-sm,.modal .btn-sm { min-height:34px;padding:7px 11px;font-size:12px; }
+.page-content input:not([type=checkbox]):not([type=radio]):not([type=file]),
+.page-content select,.page-content textarea,
+.modal input:not([type=checkbox]):not([type=radio]):not([type=file]),
+.modal select,.modal textarea {
+  min-height:var(--ui-control-height);
+  font-family:var(--ui-font) !important;
+  font-size:14px !important;
+  padding:10px 12px;
+  border-radius:10px;
+  max-width:100%;
+}
+.page-content input[type=checkbox],.modal input[type=checkbox]{width:16px;height:16px;accent-color:#187d73}
+.page-content .field label,.modal .field label{font-size:13px;font-weight:700}
+.page-content .field,.modal .field{gap:7px}
+.page-content .panel,.page-content .stat-card,.page-content .finance-stat,
+.page-content .sales-card,.page-content .inspection-item,
+.page-content .stage-card, .page-content .sales-overview > div {
+  border-radius:var(--ui-radius);
+  border-color:var(--ui-border);
+  min-width:0;
+}
+/* Equal-width columns and equal-height siblings in dashboard grids. */
+.yc05-dashboard .stats-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:var(--ui-space); align-items:stretch; }
+.yc05-dashboard .stat-card { height:100%; min-height:164px; padding:20px; display:flex; flex-direction:column; justify-content:space-between; }
+.yc05-dashboard .stat-card strong { font-family:var(--ui-font) !important; font-size:28px; line-height:1.2; margin:10px 0 4px; overflow-wrap:anywhere; }
+.yc05-dashboard .stat-card small { display:block; }
+.yc05-chart-grid,.yc05-bottom-grid,.dashboard-grid {
+  display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:var(--ui-space); align-items:stretch;
+}
+.yc05-chart-grid > *, .yc05-bottom-grid > *, .dashboard-grid > * {min-width:0;height:100%;}
+.yc05-chart-grid .panel,.yc05-bottom-grid .panel { min-height:390px; display:flex;flex-direction:column; }
+.yc05-chart-grid .panel .chart-footer { margin-top:auto; }
+.yc05-chart-grid .chart-panel { padding:20px; }
+.yc05-bottom-grid .recent-panel .table-wrap {flex:1;}
+.yc05-bottom-grid .tasks-panel .task-row {min-height:64px;}
+.donut-layout {flex:1; min-height:260px; gap:18px; padding:12px 0;}
+.donut-chart {width:158px;height:158px;flex-basis:158px;padding:19px;}
+.donut-inner strong {font-family:var(--ui-font) !important;font-size:30px;}
+.donut-legend {min-width:0;}
+.bar-chart{height:230px;min-height:230px;}
+.page-content .stats-grid {gap:var(--ui-space);}
+.page-content .stats-strip {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));padding:0;align-items:stretch;}
+.page-content .stats-strip > div {padding:18px 20px;min-width:0;}
+.page-content .stats-strip b {font-family:var(--ui-font) !important;font-size:19px;overflow-wrap:anywhere;}
+.page-content .finance-stats {display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:var(--ui-space);align-items:stretch;}
+.page-content .finance-stat {min-height:146px;height:100%;display:flex;flex-direction:column;justify-content:space-between;padding:18px;}
+.page-content .finance-stat strong {font-family:var(--ui-font) !important;font-size:19px;line-height:1.35;overflow-wrap:anywhere;}
+.page-content .sales-overview {grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--ui-space);align-items:stretch;}
+.page-content .sales-overview > div {min-height:106px;display:flex;flex-direction:column;justify-content:center;}
+.page-content .sales-overview strong {font-size:18px;}
+.page-content .sales-detail-grid {grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch;gap:var(--ui-space)}
+.page-content .sales-detail-grid > * {height:100%;min-width:0;}
+.page-content .stage-card-grid {grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch;gap:var(--ui-space);}
+.page-content .stage-card-grid > * {height:100%;min-width:0;}
+.page-content .inspection-grid {grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--ui-space)}
+.page-content .inspection-grid > * {min-width:0;height:100%;}
+.page-content .form-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:0 16px;}
+.page-content .report-panels{gap:var(--ui-space)}
+.page-content .panel-head{min-height:72px;gap:12px;align-items:center;}
+.page-content .table-wrap{max-width:100%;overflow-x:auto;}
+.page-content th{padding:13px 16px;white-space:nowrap}
+.page-content td{padding:13px 16px;}
+.page-content .task-text b,.page-content .recent-panel td b,
+.page-content .quick-row b{font-size:13px;}
+.page-content .status{font-weight:700;white-space:nowrap;}
+.yc05-login .login-copy h1,.yc05-login .login-form h2{font-family:var(--ui-font) !important}
+/* Breakpoints keep parity without squeezing forms and tables. */
+@media(max-width:1450px){
+  .page-content .finance-stats{grid-template-columns:repeat(3,minmax(0,1fr));}
+}
+@media(max-width:1250px){
+  .yc05-dashboard .stats-grid {grid-template-columns:repeat(2,minmax(0,1fr));}
+  .yc05-chart-grid,.yc05-bottom-grid,.dashboard-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .yc05-chart-grid .panel,.yc05-bottom-grid .panel{min-height:360px;}
+  .donut-layout {flex-direction:column;gap:12px;}
+  .donut-legend{max-width:none;width:100%;}
+  .page-content .sales-detail-grid{grid-template-columns:1fr;}
+}
+@media(max-width:1050px){
+  .yc05-chart-grid,.yc05-bottom-grid,.dashboard-grid{grid-template-columns:1fr;}
+  .yc05-chart-grid .panel,.yc05-bottom-grid .panel{min-height:auto;}
+  .donut-layout {flex-direction:row;}
+  .page-content .finance-stats{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .page-content .stats-strip{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .page-content .stats-strip>div:nth-child(2){border-right:0}
+  .page-content .stats-strip>div:nth-child(-n+2){border-bottom:1px solid var(--ui-border)}
+}
+@media(max-width:700px){
+  :root { --ui-space:12px; }
+  .page-content {padding:20px 14px 36px;}
+  .page-toolbar h2,.welcome-row h2,.dashboard-hero h2 {font-size:21px !important;}
+  .yc05-dashboard .stats-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .yc05-dashboard .stat-card{min-height:150px;padding:14px;}
+  .yc05-dashboard .stat-card strong{font-size:21px;}
+  .yc05-chart-grid,.yc05-bottom-grid,.dashboard-grid{grid-template-columns:1fr;}
+  .donut-layout{flex-direction:column;}
+  .page-content .finance-stats{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .page-content .finance-stat{min-height:136px;padding:13px;}
+  .page-content .sales-overview{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .page-content .stage-card-grid,.page-content .inspection-grid,.page-content .form-grid{grid-template-columns:1fr;}
+  .page-content .panel-head{min-height:64px;padding:15px;}
+  .page-content .finance-stat strong{font-size:16px;}
+  .page-content .stats-strip>div{padding:14px;}
+  .page-content .btn,.modal .btn{min-height:40px;}
+  .yc05-login .login-form h2{font-size:25px;}
+}
+@media(max-width:380px){
+  .yc05-dashboard .stats-grid,.page-content .finance-stats{grid-template-columns:1fr;}
+  .yc05-dashboard .stat-card{min-height:132px;}
+}
