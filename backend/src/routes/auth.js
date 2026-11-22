@@ -25,7 +25,7 @@ router.post('/google', async(req,res,next) => { try {
     if (!user.active) return res.status(403).json({ message:'Tài khoản đã bị khóa.' });
     user = await prisma.user.update({ where:{id:user.id}, data:{ googleSub:p.sub, avatarUrl:p.picture || null } });
   }
-  const token = jwt.sign({ sub:user.id, googleSub:p.sub }, process.env.JWT_SECRET, { algorithm:'HS256', issuer:'garage-os', expiresIn:'8h' });
+  const token = jwt.sign({ sub:user.id, googleSub:p.sub }, process.env.JWT_SECRET, { algorithm:'HS256', issuer:'garage-os', expiresIn:'1d' });
   res.json({ token, user:profile(user) });
 } catch (err) { if (err.message?.includes('Token used too late') || err.message?.includes('Wrong recipient') || err.message?.includes('Invalid token')) return res.status(401).json({ message:'Không thể xác thực Google. Vui lòng thử đăng nhập lại.' }); next(err); } });
 export default router;

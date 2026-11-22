@@ -131,4 +131,12 @@ router.post('/:id/leads',adminOnly,async(req,res,next)=>{try{
   });
   res.status(201).json(out);
 }catch(e){next(e)} });
+router.delete('/:id',adminOnly,async(req,res,next)=>{try{
+  const car=await prisma.car.findUnique({where:{id:req.params.id},include:{deal:true}});
+  if(!car)return forbiddenNotFound(res);
+  if(car.deal||['SOLD','DEPOSITED','CUSTOMER_CLOSED','FOR_SALE'].includes(car.status))return res.status(409).json({message:'Chỉ xóa hồ sơ đang kiểm định, bảo dưỡng hoặc chờ duyệt giá, chưa có giao dịch.'});
+  await audit(prisma,req.user.id,'CAR_DELETED',car.id,{plate:car.plate,status:car.status});
+  try{await prisma.car.delete({where:{id:car.id}});}catch{return res.status(409).json({message:'Không xóa được vì hồ sơ còn dữ liệu liên kết.'});}
+  res.json({ok:true});
+}catch(e){next(e)}});
 export default router;

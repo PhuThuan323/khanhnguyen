@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Modal from '../../components/Modal';
+import CarProfileActions from '../../components/CarProfileActions';
 import { money,vnDate } from '../../lib/storage';
 import {formatVnd} from '../../components/VndInput';
 import { api, uploadFile } from '../../lib/api';
@@ -47,6 +48,7 @@ export default function Inspection({ cars, onRefresh, user, users = [] }) {
   const [preview, setPreview] = useState(null);
   const [assignees, setAssignees] = useState([]);
   const [busy, setBusy] = useState(false);
+  const lock = useRef(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [activeSection, setActiveSection] = useState(sections[0]);
@@ -69,6 +71,8 @@ export default function Inspection({ cars, onRefresh, user, users = [] }) {
   }, [selected]);
 
   const invoke = async (fn, okMessage = '') => {
+    if (lock.current) return;
+    lock.current = true;
     setBusy(true);
     setError('');
     if (okMessage) setSuccess('');
@@ -79,6 +83,7 @@ export default function Inspection({ cars, onRefresh, user, users = [] }) {
       setError(e.message);
     } finally {
       await onRefresh();
+      lock.current = false;
       setBusy(false);
     }
   };
@@ -215,7 +220,7 @@ export default function Inspection({ cars, onRefresh, user, users = [] }) {
                     <td>
                       <button className="btn btn-outline btn-sm" onClick={() => openCar(c)}>
                         Mở hồ sơ
-                      </button> {user.role==='ADMIN'&&<button className="btn btn-outline btn-sm" onClick={()=>setDueEditor({carId:c.id,value:c.inspectionDueAt?vnDate(c.inspectionDueAt):''})}>Chọn hạn kiểm định</button>}
+                      </button> {user.role === 'ADMIN' && <CarProfileActions car={c} busy={busy} onRefresh={onRefresh} />} {user.role==='ADMIN'&&<button className="btn btn-outline btn-sm" onClick={()=>setDueEditor({carId:c.id,value:c.inspectionDueAt?vnDate(c.inspectionDueAt):''})}>Chọn hạn kiểm định</button>}
                     </td>
                   </tr>
                 );

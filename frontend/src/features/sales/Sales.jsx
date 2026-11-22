@@ -1,5 +1,6 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import Modal from "../../components/Modal";
+import Fireworks from "../../components/Fireworks";
 import VndInput from "../../components/VndInput";
 import { money, statusText } from "../../lib/storage";
 import { api } from "../../lib/api";
@@ -38,6 +39,8 @@ export default function Sales({ cars, onRefresh, users=[] }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [celebrate, setCelebrate] = useState(null);
+  const lock = useRef(false);
 
   const list = useMemo(
     () =>
@@ -80,6 +83,8 @@ export default function Sales({ cars, onRefresh, users=[] }) {
     setError("");
   };
   const perform = async (action, text) => {
+    if (lock.current) return;
+    lock.current = true;
     setBusy(true);
     setError("");
     setSuccess("");
@@ -91,6 +96,7 @@ export default function Sales({ cars, onRefresh, users=[] }) {
     } catch (e) {
       setError(e.message);
     } finally {
+      lock.current = false;
       setBusy(false);
     }
   };
@@ -145,10 +151,11 @@ export default function Sales({ cars, onRefresh, users=[] }) {
       )
     )
       return;
-    perform(
-      () => api(`/sales/cars/${selectedId}/sold`, { method: "POST",body:{warrantyMonths:Number(months)} }),
-      "Đã xác nhận bán xe và lưu hồ sơ người mua.",
-    );
+    const soldCar = selected;
+    perform(async () => {
+      await api(`/sales/cars/${selectedId}/sold`, { method: "POST", body: { warrantyMonths: Number(months) } });
+      setCelebrate(soldCar);
+    }, "Đã xác nhận bán xe và lưu hồ sơ người mua.");
   };
   const settle=()=>{if(!offerId)return setError('Hãy chọn hồ sơ khách cần xử lý.');if(!window.confirm('Xác nhận ghi nhận xử lý cọc của khách này?'))return;perform(()=>api(`/deposits/${offerId}/settle`,{method:'POST',body:{reason:settlementReason,returnedAmount:Number(amount||0),penaltyAmount:Number(penalty||0),note}}),'Đã ghi lịch sử xử lý cọc theo khách, không xóa chứng từ cũ.')};
   const showDeposit =
@@ -657,6 +664,13 @@ export default function Sales({ cars, onRefresh, users=[] }) {
             </div>
           </div>
         </div>
+      )}
+      {celebrate && (
+        <Fireworks
+          title="Đã bán được xe"
+          subtitle={`${celebrate.brand} ${celebrate.model} · ${celebrate.plate}`}
+          onDone={() => setCelebrate(null)}
+        />
       )}
     </div>
   );

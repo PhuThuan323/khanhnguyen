@@ -6,7 +6,7 @@ const enc=s=>E.encode(s);
 function unbase64(s){const raw=atob(s);const b=new Uint8Array(raw.length);for(let i=0;i<raw.length;i++)b[i]=raw.charCodeAt(i);return b;}
 function combine(parts){const out=new Uint8Array(parts.reduce((n,x)=>n+x.length,0));let p=0;for(const x of parts){out.set(x,p);p+=x.length;}return out;}
 function wrap(ctx,text,maxWidth,maxLines=3){const words=String(text??'—').split(/\s+/);const lines=[];let line='';for(const word of words){const next=line?line+' '+word:word;if(ctx.measureText(next).width>maxWidth&&line){lines.push(line);line=word;}else line=next;}if(line)lines.push(line);return lines.length>maxLines?[...lines.slice(0,maxLines-1),lines[maxLines-1].slice(0,38)+'…']:lines;}
-export function exportTablePdf({title,subtitle='',columns,rows,summary=[],filename='bao-cao.pdf'}){
+export function exportTablePdf({title,subtitle='',columns,rows,summary=[],filename='bao-cao.pdf',signoff=false}){
  if(!Array.isArray(columns)||!columns.length)throw Error('Chưa có cột báo cáo.');
  const totalWeight=columns.reduce((n,c)=>n+(c.weight||1),0), widths=columns.map(c=>(W-2*M)*(c.weight||1)/totalWeight);
  const pages=[];let canvas,ctx,y,pageNo=0;
@@ -15,6 +15,7 @@ export function exportTablePdf({title,subtitle='',columns,rows,summary=[],filena
  makePage();
  for(const row of rows){const values=columns.map(c=>String(row[c.key]??'—'));ctx.font='18px Arial, sans-serif';const lines=values.map((v,i)=>wrap(ctx,v,widths[i]-18,4));const height=Math.max(46,...lines.map(a=>a.length*25+13));if(y+height>H-160){finish();makePage();}if(rows.indexOf(row)%2===0){ctx.fillStyle='#f8fafc';ctx.fillRect(M,y,W-2*M,height);}ctx.fillStyle='#1f2937';ctx.font='18px Arial, sans-serif';let x=M;lines.forEach((a,i)=>{a.forEach((line,j)=>ctx.fillText(line,x+7,y+25+j*25,widths[i]-14));x+=widths[i];});ctx.strokeStyle='#e5e7eb';ctx.beginPath();ctx.moveTo(M,y+height);ctx.lineTo(W-M,y+height);ctx.stroke();y+=height;}
  if(summary.length){if(y+70+summary.length*34>H-150){finish();makePage();}y+=24;ctx.font='bold 23px Arial, sans-serif';ctx.fillStyle='#111827';ctx.fillText('TỔNG HỢP',M,y);y+=32;for(const item of summary){ctx.font='bold 19px Arial, sans-serif';ctx.fillText(`${item.label}: ${item.value}`,M,y);y+=32;}}
+ if(signoff){if(y+250>H-90){finish();makePage();}y+=36;ctx.textAlign='center';['Người lập biểu','Kế toán','Giám đốc'].forEach((label,i)=>{const col=(W-2*M)/3,x=M+i*col+col/2;ctx.fillStyle='#111827';ctx.font='bold 20px Arial, sans-serif';ctx.fillText(label,x,y);ctx.fillStyle='#475569';ctx.font='16px Arial, sans-serif';ctx.fillText(i===2?'(Ký, ghi rõ họ tên, đóng dấu)':'(Ký, ghi rõ họ tên)',x,y+28);if(i===2){ctx.strokeStyle='#c4a574';ctx.setLineDash([6,4]);ctx.beginPath();ctx.arc(x,y+130,46,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);ctx.fillText('Đóng dấu',x,y+134);}});ctx.textAlign='left';}
  finish();
  const objects=[],add=b=>{objects.push(b);return objects.length;};
  const catalog=add(enc('<< /Type /Catalog /Pages 2 0 R >>'));
