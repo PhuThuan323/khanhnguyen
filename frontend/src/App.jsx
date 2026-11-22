@@ -2,6 +2,7 @@ import {useQuery,useQueryClient} from '@tanstack/react-query';
 import { useCallback,useEffect,useRef,useState } from 'react';
 import Sidebar from './components/Sidebar';
 import Topbar from './components/Topbar';
+import Icon from './components/Icon';
 import Dashboard from './features/dashboard/Dashboard';
 import Inspection from './features/inspection/Inspection';
 import Maintenance from './features/maintenance/Maintenance';
@@ -17,6 +18,7 @@ import {startLiveSync} from './lib/live';
 import './App.css';
 import './yc05.css';
 import './yc06-consistency.css';
+import './unslop.css';
 const adminPages=['dashboard','inventory','sales','reports','warranty','users'];
 function Login({onLogin}){
   const [error,setError]=useState(''),[busy,setBusy]=useState(false),button=useRef(null);
@@ -44,10 +46,17 @@ function Login({onLogin}){
     return ()=>{active=false};
   },[clientId,onLogin]);
   return <div className="login-screen yc05-login">
-   <div className="login-art"><div className="login-brand"><div className="brand-mark">K</div><div><b>KHÁNH NGUYÊN</b><small>GARAGE MANAGEMENT SYSTEM</small></div></div>
-    <div className="login-visual" aria-hidden="true"><div className="login-orbit orbit-one"/><div className="login-orbit orbit-two"/><svg className="login-car-svg" viewBox="0 0 680 260" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="carStroke" x1="0" y1="0" x2="680" y2="260"><stop stopColor="#FFFFFF" stopOpacity=".9"/><stop offset="1" stopColor="#89ABC7" stopOpacity=".35"/></linearGradient></defs><path d="M48 171 L87 132 L171 112 L244 49 Q257 39 279 39 L428 39 Q466 39 497 64 L567 111 L618 129 Q640 138 649 164 L650 191 L604 194 Q601 153 566 153 Q528 153 520 197 L184 197 Q176 154 140 154 Q103 154 96 196 L47 194 Z" stroke="url(#carStroke)" strokeWidth="3" strokeLinejoin="round"/><path d="M235 112 L277 56 L431 56 Q456 56 479 78 L518 113 Z" stroke="#A9C6DC" strokeWidth="2"/><path d="M369 57 L369 113 M195 128 L524 128 M240 138 L240 161" stroke="#C9D9E8" strokeOpacity=".65" strokeWidth="2"/><circle cx="140" cy="198" r="42" stroke="#E0EAF2" strokeWidth="5"/><circle cx="140" cy="198" r="21" stroke="#A9C6DC" strokeWidth="2"/><circle cx="563" cy="198" r="42" stroke="#E0EAF2" strokeWidth="5"/><circle cx="563" cy="198" r="21" stroke="#A9C6DC" strokeWidth="2"/><path d="M68 153 L108 145 M604 146 L629 155" stroke="#F2AE76" strokeWidth="7" strokeLinecap="round"/></svg><div className="car-line"/></div>
-    <div className="login-copy"><div className="eyebrow">NỀN TẢNG QUẢN LÝ XE ĐÃ QUA SỬ DỤNG</div><h1>Quản trị thông minh.<br/><em>Vận hành tinh gọn.</em></h1><p>Một hệ thống xuyên suốt từ kiểm định, kho xe, bán hàng đến tài chính và hậu mãi.</p><div className="login-feature-line"><span>◉ Quản lý tập trung</span><span>◉ Cập nhật dữ liệu</span><span>◉ Báo cáo minh bạch</span></div></div><div className="login-art-bottom">KHÁNH NGUYÊN · GARAGE OS <span>© 2026</span></div></div>
-   <div className="login-form-wrap"><div className="login-form"><div className="login-form-icon">K<span>·</span></div><div className="eyebrow">CHÀO MỪNG TRỞ LẠI</div><h2>Đăng nhập tài khoản</h2><p>Truy cập hệ thống quản lý nội bộ Khánh Nguyên. Vui lòng sử dụng tài khoản Google đã được cấp quyền.</p><div className="login-button-label">TÀI KHOẢN CỦA BẠN</div><div ref={button} className="google-button"/>{busy&&<p role="status">Đang xác minh tài khoản…</p>}{error&&<div className="error-text" role="alert">{error}</div>}<div className="login-secure">♢ &nbsp;Kết nối bảo mật · Phân quyền theo tài khoản</div><div className="notice">Chưa có quyền truy cập? Liên hệ quản trị viên để được thêm email vào hệ thống.</div></div><div className="login-footer">Dành riêng cho đội ngũ Khánh Nguyên · Garage OS YC05</div></div></div>;
+    <section className="login-art">
+      <div className="login-brand"><div className="brand-mark" aria-hidden="true">K</div><div><b>KHÁNH NGUYÊN</b><small>Garage OS</small></div></div>
+      <div className="login-visual" aria-hidden="true"><svg className="login-car-svg" viewBox="0 0 680 260" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M48 171 L87 132 L171 112 L244 49 Q257 39 279 39 L428 39 Q466 39 497 64 L567 111 L618 129 Q640 138 649 164 L650 191 L604 194 Q601 153 566 153 Q528 153 520 197 L184 197 Q176 154 140 154 Q103 154 96 196 L47 194 Z" stroke="currentColor" strokeWidth="2.5" strokeLinejoin="round"/><path d="M235 112 L277 56 L431 56 Q456 56 479 78 L518 113 Z" stroke="currentColor" strokeWidth="2"/><path d="M369 57 L369 113 M195 128 L524 128 M240 138 L240 161" stroke="currentColor" strokeOpacity=".65" strokeWidth="2"/><circle cx="140" cy="198" r="42" stroke="currentColor" strokeWidth="4"/><circle cx="140" cy="198" r="21" stroke="currentColor" strokeWidth="2"/><circle cx="563" cy="198" r="42" stroke="currentColor" strokeWidth="4"/><circle cx="563" cy="198" r="21" stroke="currentColor" strokeWidth="2"/></svg></div>
+      <div className="login-copy"><div className="login-kicker">Quản lý nội bộ showroom ô tô</div><h1>Quản lý xe rõ ràng,<br/>từ tiếp nhận đến bàn giao</h1><p>Theo dõi kiểm định, hồ sơ xe, kho hàng, giao dịch và chi phí trên cùng một hệ thống.</p></div>
+      <div className="login-art-bottom"><span>Khánh Nguyên · Đồng Tháp</span><span>Garage OS</span></div>
+    </section>
+    <section className="login-form-wrap">
+      <div className="login-form"><div className="login-form-icon" aria-hidden="true">K</div><div className="login-kicker">Tài khoản đã được cấp quyền</div><h2>Đăng nhập hệ thống</h2><p>Sử dụng tài khoản Google của bạn để truy cập dữ liệu và chức năng được phân quyền.</p><div ref={button} className="google-button" aria-label="Đăng nhập bằng Google"/>{busy&&<p role="status">Đang xác minh tài khoản…</p>}{error&&<div className="error-text" role="alert">{error}</div>}<div className="login-secure"><Icon name="warranty" size={17}/> Đăng nhập có xác thực và phân quyền</div><div className="notice">Chưa có quyền truy cập? Liên hệ quản trị viên để thêm tài khoản.</div></div>
+      <div className="login-footer">Khánh Nguyên · Garage OS</div>
+    </section>
+  </div>;
 }
 export default function App(){
   const queryClient=useQueryClient();

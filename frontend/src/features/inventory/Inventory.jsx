@@ -1,12 +1,13 @@
 import {useMemo,useState} from 'react';
 import Modal from '../../components/Modal';
+import Icon from '../../components/Icon';
 import VndInput from '../../components/VndInput';
 import {money,statusText} from '../../lib/storage';
 import {api} from '../../lib/api';
 import {useHydratedCar} from '../../lib/useHydratedCar';
 import {exportTablePdf} from '../../lib/exportPdf';
 import {useProtectedMedia} from '../../components/SecureMedia';
-function Cover({id}){const {src}=useProtectedMedia(id?`/media/photos/${id}`:'/media/photos/none');return src?<img src={src} alt="Ảnh xe" style={{width:76,height:54,objectFit:'cover',borderRadius:7}}/>:<span style={{fontSize:27}}>🚙</span>}
+function Cover({id}){const {src}=useProtectedMedia(id?`/media/photos/${id}`:'/media/photos/none');return src?<img src={src} alt="Ảnh xe" style={{width:76,height:54,objectFit:'cover',borderRadius:7}}/>:<span className="vehicle-no-photo" aria-label="Chưa có ảnh xe"><Icon name="car" size={26}/></span>}
 const sum=(arr)=>arr.reduce((s,x)=>s+Number(x.amount||0),0);
 const warrantyDays=(c)=>c.warrantyUntil?Math.max(0,Math.ceil((new Date(c.warrantyUntil)-Date.now())/86400000)):0;
 export default function Inventory({cars,onRefresh,user}){

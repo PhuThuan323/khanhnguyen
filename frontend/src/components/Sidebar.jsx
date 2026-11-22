@@ -1,80 +1,50 @@
+import Icon from './Icon';
+
 const navigation = [
-  {
-    title: 'ĐIỀU HÀNH',
-    items: [
-      { id: 'dashboard', label: 'Tổng quan', icon: '▦', roles: ['ADMIN'] },
-      { id: 'inspection', label: 'Kiểm định xe', icon: '⌕', roles: ['ADMIN', 'EMPLOYEE'] },
-      { id: 'documents', label: 'Hồ sơ xe', icon: '▣', roles: ['ADMIN','EMPLOYEE'] },
-      { id: 'maintenance', label: 'Bảo dưỡng', icon: '⚒', roles: ['ADMIN', 'EMPLOYEE'] },
-      { id: 'inventory', label: 'Kho xe & định giá', icon: '▤', roles: ['ADMIN'] },
-      { id: 'sales', label: 'Kinh doanh', icon: '♧', roles: ['ADMIN'] },
-    ],
-  },
-  {
-    title: 'TÀI CHÍNH',
-    items: [
-      { id: 'expenses', label: 'Chi phí vận hành', icon: '↗', roles: ['ADMIN', 'EMPLOYEE'] },
-      { id: 'reports', label: 'Báo cáo tài chính', icon: '▥', roles: ['ADMIN'] },
-      { id: 'warranty', label: 'Bảo hành & hậu mãi', icon: '◇', roles: ['ADMIN'] },
-    ],
-  },
-  {
-    title: 'HỆ THỐNG',
-    items: [
-      { id: 'users', label: 'Nhân sự & phân quyền', icon: '♙', roles: ['ADMIN'] },
-    ],
-  },
+  { title: 'Điều hành', items: [
+    { id: 'dashboard', label: 'Tổng quan', icon: 'dashboard', roles: ['ADMIN'] },
+    { id: 'inspection', label: 'Kiểm định xe', icon: 'inspection', roles: ['ADMIN', 'EMPLOYEE'] },
+    { id: 'documents', label: 'Hồ sơ xe', icon: 'document', roles: ['ADMIN', 'EMPLOYEE'] },
+    { id: 'maintenance', label: 'Bảo dưỡng', icon: 'wrench', roles: ['ADMIN', 'EMPLOYEE'] },
+    { id: 'inventory', label: 'Kho xe & định giá', icon: 'car', roles: ['ADMIN'] },
+    { id: 'sales', label: 'Kinh doanh', icon: 'sales', roles: ['ADMIN'] },
+  ]},
+  { title: 'Tài chính', items: [
+    { id: 'expenses', label: 'Chi phí vận hành', icon: 'expenses', roles: ['ADMIN', 'EMPLOYEE'] },
+    { id: 'reports', label: 'Báo cáo tài chính', icon: 'reports', roles: ['ADMIN'] },
+    { id: 'warranty', label: 'Bảo hành & hậu mãi', icon: 'warranty', roles: ['ADMIN'] },
+  ]},
+  { title: 'Hệ thống', items: [
+    { id: 'users', label: 'Nhân sự & phân quyền', icon: 'users', roles: ['ADMIN'] },
+  ]},
 ];
-
-export default function Sidebar({ page, setPage, user, open=false, onClose=()=>{} }) {
-  const allowedGroups = navigation
-    .map((group) => ({
-      ...group,
-      items: group.items.filter((item) => item.roles.includes(user.role)),
-    }))
-    .filter((group) => group.items.length > 0);
-
-  return (
-    <><div className={`sidebar-scrim ${open ? "visible" : ""}`} onClick={onClose} aria-hidden="true"/><aside className={`sidebar ${open ? "sidebar-open" : ""}`}>
-      <div className="brand brand-vucar"><button className="sidebar-close" aria-label="Đóng menu" onClick={onClose}>×</button>
-        <div className="brand-mark">G</div>
-        <div>
-          <b>GARAGE OS</b>
-          <small>QUẢN LÝ THU MUA XE CŨ</small>
-        </div>
+export default function Sidebar({page,setPage,user,open=false,onClose=()=>{}}){
+  const groups=navigation.map(group=>({...group,items:group.items.filter(item=>item.roles.includes(user.role))})).filter(group=>group.items.length);
+  return <>
+    {open&&<button type="button" className="sidebar-scrim visible" onClick={onClose} aria-label="Đóng thanh điều hướng"/>}
+    <aside className={`sidebar ${open?'sidebar-open':''}`} aria-label="Thanh điều hướng">
+      <div className="brand brand-vucar">
+        <div className="brand-mark" aria-hidden="true">K</div>
+        <div className="brand-copy"><b>KHÁNH NGUYÊN</b><small>Garage OS</small></div>
+        <button className="sidebar-close" type="button" onClick={onClose} aria-label="Đóng menu"><Icon name="close"/></button>
       </div>
-
       <div className="sidebar-workspace-card">
-        <span className="sidebar-workspace-kicker">WORKSPACE</span>
-        <strong>{user.role === 'ADMIN' ? 'Quản trị hệ thống' : 'Nhân viên kiểm định'}</strong>
-        <p>
-          {user.role === 'ADMIN'
-            ? 'Theo dõi toàn bộ vòng đời xe từ tiếp nhận đến bán hàng.'
-            : 'Chỉ hiển thị các khu vực bạn được phép thao tác.'}
-        </p>
+        <span className="sidebar-workspace-kicker">Không gian làm việc</span>
+        <strong>{user.role==='ADMIN'?'Quản lý showroom':'Kiểm định & hồ sơ'}</strong>
+        <p>{user.role==='ADMIN'?'Thu mua · Kho xe · Kinh doanh':'Các khu vực được phân quyền'}</p>
       </div>
-
-      {allowedGroups.map((group) => (
-        <section className="nav-group" key={group.title}>
-          <div className="nav-heading">{group.title}</div>
-          {group.items.map((item) => (
-            <button
-              key={item.id}
-              className={`nav-item ${page === item.id ? 'active' : ''}`}
-              onClick={() => {setPage(item.id);onClose();}}
-            >
-              <span className="nav-icon">{item.icon}</span>
-              <span>{item.label}</span>
-            </button>
-          ))}
-        </section>
-      ))}
-
-      <div className="sidebar-bottom sidebar-bottom-vucar">
-        <div className="online-dot" />
-        Hệ thống đang hoạt động
-        <small>{user.role === 'ADMIN' ? 'Toàn quyền quản trị' : 'Chế độ nhân viên đã giới hạn quyền'}</small>
-      </div>
-    </aside></>
-  );
+      <nav className="sidebar-nav" aria-label="Chức năng quản lý">
+        {groups.map(group=><section className="nav-group" key={group.title}>
+          <h2 className="nav-heading">{group.title}</h2>
+          {group.items.map(item=><button
+            key={item.id} type="button" aria-current={page===item.id?'page':undefined}
+            className={`nav-item ${page===item.id?'active':''}`}
+            onClick={()=>{setPage(item.id);onClose();}}>
+            <span className="nav-icon"><Icon name={item.icon}/></span><span>{item.label}</span>
+          </button>)}
+        </section>)}
+      </nav>
+      <div className="sidebar-bottom sidebar-bottom-vucar"><span className="online-dot" aria-hidden="true"/><span>Phiên làm việc đang mở</span><small>{user.role==='ADMIN'?'Quyền quản trị':'Quyền nhân viên'}</small></div>
+    </aside>
+  </>;
 }
