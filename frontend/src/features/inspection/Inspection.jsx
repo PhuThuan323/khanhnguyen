@@ -4,6 +4,7 @@ import CarProfileActions from '../../components/CarProfileActions';
 import { money,vnDate } from '../../lib/storage';
 import {formatVnd} from '../../components/VndInput';
 import { api, uploadFile } from '../../lib/api';
+import { useHydratedCar } from '../../lib/useHydratedCar';
 import { SecurePhoto } from '../../components/SecureMedia';
 
 const sections = ['Ca Bô - Hầm Máy','4 cửa - 4 nách','Cốp Xe','Gầm','Bên ngoài xe','Nội thất','Đồng hồ','Điện xe - Máy lạnh','Động Cơ','Số cà'];
@@ -55,7 +56,7 @@ export default function Inspection({ cars, onRefresh, user, users = [] }) {
   const [search,setSearch]=useState('');
   const [dueEditor,setDueEditor]=useState(null);
 
-  const selected = cars.find((c) => c.id === selectedId);
+  const selected = useHydratedCar(cars, selectedId);
   const summary = useMemo(() => (selected ? progressSummary(selected) : null), [selected]);
 
   const list = useMemo(
@@ -396,12 +397,12 @@ export default function Inspection({ cars, onRefresh, user, users = [] }) {
                 <div className="panel-head compact">
                   <div>
                     <h3>Ảnh đã tải lên</h3>
-                    <p>{currentMeta?.block?.photos?.length || 0} ảnh trong hạng mục này</p>
+                    <p>{selected?.summary ? 'Đang tải ảnh hồ sơ' : `${currentMeta?.block?.photos?.filter((p) => !p.pending).length || 0} ảnh trong hạng mục này`}</p>
                   </div>
                 </div>
                 {currentMeta?.block?.photos?.length ? (
                   <div className="secure-photo-list secure-photo-list-lg">
-                    {currentMeta.block.photos.map((p) => (
+                    {currentMeta.block.photos.filter((p) => !p.pending).map((p) => (
                       <div key={p.id}><SecurePhoto
                         key={`${p.id}-${p.createdAt}`}
                         photo={p}

@@ -6,6 +6,19 @@ import { audit, forbiddenNotFound, amountField, nameField } from '../lib.js';
 import {serializeCar,numberOrNull} from '../services/serializeCar.js';
 import {sendJson} from '../services/jsonResponse.js';
 const router=Router();
+
+const summaryInclude = {
+  assignments:{select:{employeeId:true,employee:{select:{id:true,name:true,email:true,active:true}}}},
+  blocks:{select:{id:true,section:true,condition:true,_count:{select:{photos:true,comments:true}}},orderBy:{createdAt:'asc'}},
+  maintenance:{select:{id:true,task:true,category:true,performedBy:true,performedAt:true,amount:true,note:true,createdAt:true,employeeId:true,employee:{select:{id:true,name:true,email:true}}},orderBy:{createdAt:'desc'}},
+  leads:{select:{id:true,carId:true,name:true,tiktok:true,phone:true,address:true,note:true,createdAt:true},orderBy:{createdAt:'asc'}},
+  deal:{include:{buyer:{select:{id:true,name:true,phone:true,tiktok:true,address:true}},payments:{select:{id:true,kind:true,amount:true,note:true,receivedAt:true},orderBy:{receivedAt:'asc'}}}},
+  warranty:{orderBy:{date:'desc'}},
+  depositSettlements:{orderBy:{createdAt:'desc'}},
+  commissions:{orderBy:{createdAt:'desc'}},
+  vehicleDocument:true,
+  competingDeposits:{include:{lead:{select:{id:true,name:true,phone:true}},payments:{orderBy:{createdAt:'asc'}},settlements:{orderBy:{createdAt:'asc'}}},orderBy:{createdAt:'asc'}}
+};
 const include = {
   assignments:{include:{employee:{select:{id:true,name:true,email:true,active:true}}}},
   blocks:{include:{photos:{include:{uploadedBy:{select:{id:true,name:true}}},orderBy:{createdAt:'asc'}},comments:{include:{author:{select:{id:true,name:true,email:true}}},orderBy:{createdAt:'asc'}}},orderBy:{createdAt:'asc'}},
@@ -46,9 +59,10 @@ router.get('/catalog',async(req,res,next)=>{try{
   res.json({items:rows.map(c=>({...c,...(req.user.role==='ADMIN'?{purchasePrice:numberOrNull(c.purchasePrice),salePrice:numberOrNull(c.salePrice),discount:Number(c.discount||0)}:{})})),page,pageSize,total,hasMore:page*pageSize<total});
 }catch(e){next(e)}});
 router.get('/', async(req,res,next)=>{ try {
+  const summary=req.query.view==='summary';
   const where=req.user.role==='ADMIN'?{}:{assignments:{some:{employeeId:req.user.id}}};
-  const cars=await prisma.car.findMany({where,include,orderBy:{createdAt:'desc'}});
-  await sendJson(req,res,cars.map(c=>serializeCar(c,req.user.role,req.user.id)));
+  const cars=await prisma.car.findMany({where,include:summary?summaryInclude:include,orderBy:{createdAt:'desc'}});
+  await sendJson(req,res,cars.map(c=>serializeCar(c,req.user.role,req.user.id,summary?{summary:true}:{})));
 } catch(e){next(e)} });
 
 // YC01: Admin may revise vehicle details, discount and warranty without bypassing sale state transitions.

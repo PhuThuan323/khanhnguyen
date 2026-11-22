@@ -54,7 +54,7 @@ export default function App(){
     const [liveVersion,setLiveVersion]=useState(0);
   const [user,setUser]=useState(null),[loading,setLoading]=useState(hasToken()),[page,setPage]=useState('dashboard');
   const [error,setError]=useState(''),[refreshing,setRefreshing]=useState(false),[sidebarOpen,setSidebarOpen]=useState(false);
-  const cache={cars:useQuery({queryKey:['garage','cars'],queryFn:()=>api('/cars'),enabled:!!user,staleTime:45_000}),
+  const cache={cars:useQuery({queryKey:['garage','cars'],queryFn:()=>api('/cars?view=summary'),enabled:!!user,staleTime:45_000}),
     users:useQuery({queryKey:['garage','users'],queryFn:()=>api('/users'),enabled:!!user&&user.role==='ADMIN',staleTime:120_000}),
     expenses:useQuery({queryKey:['garage','expenses'],queryFn:()=>api('/operations/expenses'),enabled:!!user&&user.role==='ADMIN',staleTime:45_000}),
     warranty:useQuery({queryKey:['garage','warranty'],queryFn:()=>api('/operations/warranty'),enabled:!!user,staleTime:45_000})};
@@ -94,7 +94,7 @@ export default function App(){
         api(`/cars/${encodeURIComponent(event.carId)}`).then(car=>{
           queryClient.setQueryData(['garage','cars'],old=>{
             if(!old)return old;const index=old.findIndex(x=>x.id===car.id);
-            return index<0?[car,...old]:old.map(x=>x.id===car.id?car:x);
+            const next={...car,hydrated:true};return index<0?[next,...old]:old.map(x=>x.id===next.id?next:x);
           });
         }).catch(()=>pending.add('cars'));
       }else pending.add(scope);

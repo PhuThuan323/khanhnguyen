@@ -4,6 +4,7 @@ import Fireworks from "../../components/Fireworks";
 import VndInput from "../../components/VndInput";
 import { money, statusText } from "../../lib/storage";
 import { api } from "../../lib/api";
+import { useHydratedCar } from "../../lib/useHydratedCar";
 
 const blankLead = { name: "", tiktok: "", phone: "", address: "", note: "" };
 const activityLabels = {
@@ -57,7 +58,7 @@ export default function Sales({ cars, onRefresh, users=[] }) {
         ),
     [cars, search],
   );
-  const selected = cars.find((c) => c.id === selectedId);
+  const selected = useHydratedCar(cars, selectedId);
   const selectedLead = selected?.leads?.find((l) => l.id === leadId);
   const offers=selected?.deposits||[];
   const activeOffers=offers.filter(o=>o.status==="ACTIVE"||o.status==="REFUND_DUE");

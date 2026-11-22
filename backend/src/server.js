@@ -51,6 +51,7 @@ app.use('/api/sales',salesRoutes);
 app.use('/api/deposits',depositRoutes);
 app.use('/api/reports',reportsRoutes);
 app.use('/api/documents',documentRoutes);
+app.get('/',(_req,res)=>res.json({ok:true,service:'garage-os-api',health:'/api/health',note:'Đây là máy chủ API. Giao diện nằm ở ứng dụng frontend, không mở địa chỉ này như một trang web.'}));
 app.use((_req,res)=>res.status(404).json({message:'API không tồn tại.'}));
 app.use((err,req,res,next)=>{
   console.error('[API ERROR]',err);

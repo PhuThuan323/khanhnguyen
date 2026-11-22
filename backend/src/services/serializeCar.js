@@ -2,17 +2,21 @@ import { redactDeal } from './salesLogic.js';
 export const numberOrNull = (n) => n === null || n === undefined ? null : Number(n);
 
 /** Employee DTO is intentionally allowlisted. Never spread raw Prisma car into staff API. */
-export function serializeCar(car, role, userId = '') {
-  const inspectionBlocks = car.blocks.map(b => ({
+export function serializeCar(car, role, userId = '', options = {}) {
+  const inspectionBlocks = (car.blocks || []).map(b => ({
     id: b.id, section: b.section, condition: b.condition,
-    photos: b.photos.map(p => ({ id: p.id, blockId: p.blockId, originalName: p.originalName, uploadedById: p.uploadedById, uploadedBy: p.uploadedBy, createdAt: p.createdAt })),
-    comments: b.comments.map(c => ({ id: c.id, content: c.content, authorId: c.authorId, author: c.author, createdAt: c.createdAt })),
+    photos: Array.isArray(b.photos)
+      ? b.photos.map(p => ({ id: p.id, blockId: p.blockId, originalName: p.originalName, uploadedById: p.uploadedById, uploadedBy: p.uploadedBy, createdAt: p.createdAt }))
+      : Array.from({ length: b._count?.photos || 0 }, (_, i) => ({ id: `pending-${b.id}-${i}`, pending: true })),
+    comments: Array.isArray(b.comments)
+      ? b.comments.map(c => ({ id: c.id, content: c.content, authorId: c.authorId, author: c.author, createdAt: c.createdAt }))
+      : Array.from({ length: b._count?.comments || 0 }, (_, i) => ({ id: `pending-c-${b.id}-${i}`, pending: true, content: '' })),
   }));
   const isAdmin = role === 'ADMIN';
   const maintenance = (isAdmin ? car.maintenance : car.maintenance.filter(m => m.employeeId === userId)).map(m => ({
     id: m.id, task: m.task, category:m.category, performedBy:m.performedBy, performedAt:m.performedAt, ...(isAdmin ? { amount: Number(m.amount) } : {}), note: m.note, date: m.createdAt,
     assignedTo: m.employeeId, createdBy: m.employeeId, employee: m.employee,
-    invoices: m.invoices.map(i => ({ id: i.id, originalName: i.originalName, format: i.format, createdAt: i.createdAt, uploadedById: i.uploadedById })),
+    invoices: (m.invoices || []).map(i => ({ id: i.id, originalName: i.originalName, format: i.format, createdAt: i.createdAt, uploadedById: i.uploadedById })),
   }));
   const soldDate=car.deal?.soldAt||null;
   const publicCode=`${car.plate.replace(/[^A-Z0-9]/gi,'').toUpperCase()}-${(car.deal?.buyer?.name||car.competingDeposits?.find(o=>o.status==='ACTIVE')?.lead?.name||car.vehicleDocument?.customerName||'CHUA-CO-KHACH').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/gi,'d').replace(/[^A-Za-z0-9 ]/g,'').trim().replace(/\s+/g,'-').toUpperCase()}`;
@@ -35,9 +39,10 @@ export function serializeCar(car, role, userId = '') {
     })),
     deal: redactDeal(car.deal),
     commissions:(car.commissions||[]).map(x=>({...x,amount:Number(x.amount)})),
-    deposits:(car.competingDeposits||[]).map(o=>({id:o.id,leadId:o.leadId,lead:o.lead,status:o.status,agreedPrice:Number(o.agreedPrice),createdAt:o.createdAt,collectorIds:o.collectorIds,payments:o.payments.map(p=>({...p,amount:Number(p.amount)})),settlements:o.settlements.map(r=>({...r,returnedAmount:Number(r.returnedAmount),penaltyAmount:Number(r.penaltyAmount)}))})),
+    deposits:(car.competingDeposits||[]).map(o=>({id:o.id,leadId:o.leadId,lead:o.lead,status:o.status,agreedPrice:Number(o.agreedPrice),createdAt:o.createdAt,collectorIds:o.collectorIds,payments:(o.payments||[]).map(p=>({...p,amount:Number(p.amount)})),settlements:(o.settlements||[]).map(r=>({...r,returnedAmount:Number(r.returnedAmount),penaltyAmount:Number(r.penaltyAmount)}))})),
     warranty: car.warranty.map(w => ({ ...w, amount: Number(w.amount) })),
     vehicleDocument: car.vehicleDocument ? {...car.vehicleDocument,cost:Number(car.vehicleDocument.cost)} : null,
   });
+  if (options.summary) base.summary = true;
   return base;
 }

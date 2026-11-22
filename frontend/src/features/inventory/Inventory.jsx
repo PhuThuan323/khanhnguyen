@@ -3,6 +3,7 @@ import Modal from '../../components/Modal';
 import VndInput from '../../components/VndInput';
 import {money,statusText} from '../../lib/storage';
 import {api} from '../../lib/api';
+import {useHydratedCar} from '../../lib/useHydratedCar';
 import {exportTablePdf} from '../../lib/exportPdf';
 import {useProtectedMedia} from '../../components/SecureMedia';
 function Cover({id}){const {src}=useProtectedMedia(id?`/media/photos/${id}`:'/media/photos/none');return src?<img src={src} alt="Ảnh xe" style={{width:76,height:54,objectFit:'cover',borderRadius:7}}/>:<span style={{fontSize:27}}>🚙</span>}
@@ -10,7 +11,7 @@ const sum=(arr)=>arr.reduce((s,x)=>s+Number(x.amount||0),0);
 const warrantyDays=(c)=>c.warrantyUntil?Math.max(0,Math.ceil((new Date(c.warrantyUntil)-Date.now())/86400000)):0;
 export default function Inventory({cars,onRefresh,user}){
  const [query,setQuery]=useState(''),[selectedId,setSelectedId]=useState(null),[price,setPrice]=useState(''),[discount,setDiscount]=useState(''),[edit,setEdit]=useState(false),[err,setErr]=useState('');
- const selected=cars.find(c=>c.id===selectedId)||null;
+ const selected=useHydratedCar(cars, selectedId);
  const visible=useMemo(()=>cars.filter(c=>`${c.plate} ${c.brand} ${c.model} ${c.profileCode||''} ${c.deal?.buyer?.name||''} ${c.deal?.buyer?.phone||''} ${(c.leads||[]).map(x=>x.name+' '+x.phone).join(' ')}`.toLowerCase().includes(query.toLowerCase())),[cars,query]);
  const current=visible.filter(c=>['READY_FOR_REVIEW','FOR_SALE','CUSTOMER_CLOSED','DEPOSITED'].includes(c.status)),sold=visible.filter(c=>c.status==='SOLD');
  const cost=c=>Number(c.purchasePrice||0)+sum(c.maintenance||[])+sum(c.warranty||[])+sum(c.commissions||[])+Number(c.vehicleDocument?.cost||0);
